@@ -1,6 +1,5 @@
 //Game of life code file
 #include "GOL.hpp"
-#include <time.h>
 #include <iostream>
 
 
@@ -14,10 +13,12 @@ world::world(){
     }
 }
 world::~world(){}
-int world::getValue(int x, int y){
-    if (x < 0 || x > GOLsizeX-1 || y < 0 || y > GOLsizeY-1)
-        return 0;
-    return (int)data[x][y];
+bool world::getValue(int x, int y){
+    if (x < 0) x += GOLsizeX;
+    if (y < 0) y += GOLsizeY;
+    if (x > GOLsizeX-1) x -= GOLsizeX;
+    if (y > GOLsizeY-1) y -= GOLsizeY;
+    return data[x][y];
 }
 world world::operator=(world w){
     for (int x = 0; x < GOLsizeX; x++)
@@ -31,54 +32,39 @@ world world::operator=(world w){
 }
 bool world::updateCell(int x, int y){
     int livingArround=0;
-    
-    livingArround += getValue(x-1,y);
-    livingArround += getValue(x+1,y);
-    livingArround += getValue(x,y-1);
-    livingArround += getValue(x,y+1);
-    livingArround += getValue(x-1,y-1);
-    livingArround += getValue(x+1,y-1);
-    livingArround += getValue(x-1,y+1);
-    livingArround += getValue(x+1,y+1);
 
+    livingArround += getValue(x-1,y+1);
+    livingArround += getValue(x,y+1);
+    livingArround += getValue(x+1,y+1);
+    livingArround += getValue(x-1,y);
+
+    livingArround += getValue(x+1,y);
+    livingArround += getValue(x-1,y-1);
+    livingArround += getValue(x,y-1);
+    livingArround += getValue(x+1,y-1);
+
+    
     if (data[x][y] == true)
     {
         if (livingArround<2 || livingArround>3)
-        {
             return false;
-        }
     }
     else
     {
         if (livingArround==3)
-        {
-             return true;
-        }
+            return true;
     }
     return data[x][y];
 }
 
 GOL::GOL(){
-    frameCounter = 0;
-    previousframeChecked = 0;
-    previousTime = time(NULL);
-    fps = 0;
-    previousFrameUpdate = 60;
+    shouldUpdate = true;
     isFinished = false;
 }
 GOL::~GOL(){}
-void GOL::update(float delay){
-    frameCounter++;
-    if (previousTime != (size_t)time(NULL))
+bool GOL::update(int delay){
+    if (shouldUpdate)
     {
-        previousTime = time(NULL);
-        fps = frameCounter - previousframeChecked;
-        previousframeChecked = frameCounter;
-    }
-    
-    if (frameCounter >= previousFrameUpdate + (delay*fps))
-    {
-        previousFrameUpdate = frameCounter;
         //creat a world for change
         world tempWorld;
         tempWorld = i_world;
@@ -88,13 +74,23 @@ void GOL::update(float delay){
         {
             for (int x = 0; x < GOLsizeY; x++)
             {
+                
                 tempWorld.data[x][y]=i_world.updateCell(x,y);
             }
         }
         
         //add change
         i_world = tempWorld;
+
+        waitStart = std::chrono::system_clock::now();
+        shouldUpdate = false;
+        return true;
     }
+    if (waitStart + std::chrono::milliseconds(delay) >= std::chrono::system_clock::now())
+        return false;   
+    shouldUpdate = true;
+    //*( ( char* ) NULL ) = 0;
+
 }
 void GOL::terminalPrint(){
     for (int y = 0; y < GOLsizeX; y++)
@@ -102,9 +98,9 @@ void GOL::terminalPrint(){
         for (int x = 0; x < GOLsizeY; x++)
         {
             if (i_world.data [x][y])
-                std::cout<<"⬛";
+                std::cout<<"  ";
             else
-                std::cout<<"⬜";
+                std::cout<<"\xe2\x96\x88\xe2\x96\x88";
         } 
         std::cout<<std::endl;
     }
@@ -114,12 +110,4 @@ void GOL::changeCell(int x, int y){
         i_world.data [x][y] = false;
     else
         i_world.data [x][y] = true;
-}
-int GOL::getFPS(){
-    return fps;
-}
-
-
-void printFPS(GOL currentWorld){
-    std::cout<<currentWorld.getFPS()<<std::endl;
 }
