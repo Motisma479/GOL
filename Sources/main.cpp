@@ -6,15 +6,9 @@
 
 int main()
 {
-    std::system("chcp 65001");
-    GOL<60, 29> gol;
+    GOL<32, 16> gol(true);
 
-    for(const auto& i : genShape_1(30, 13))
-    {
-        gol.changeCell(i[0], i[1]);
-    }
-
-    for(const auto& i : genShape_1(0, 13))
+    for(const auto& i : genShape_1(0, 0))
     {
         gol.changeCell(i[0], i[1]);
     }

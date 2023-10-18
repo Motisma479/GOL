@@ -14,8 +14,8 @@
 #define COLOR_DEAD "255;255;255"
 #endif
 
-#define __COLOR_ALIVE__ "\033[48;2;"COLOR_ALIVE"m"
-#define __COLOR_DEAD__ "\033[48;2;"COLOR_DEAD"m"
+#define __COLOR_ALIVE__ "\033[48;2;" COLOR_ALIVE "m"
+#define __COLOR_DEAD__ "\033[48;2;" COLOR_DEAD "m"
 
 template <int size_x, int size_y>
 class GOL
@@ -23,7 +23,7 @@ class GOL
 public:
     bool isFinished;
 
-    GOL()
+    GOL(bool restricted = false)
     {
         isFinished = false;
         terminal.Init();
@@ -38,6 +38,7 @@ public:
 
         shouldUpdate = true;
         firstUpdate = true;
+        _restricted = restricted;
     }
     ~GOL()
     {
@@ -107,14 +108,25 @@ private:
     bool shouldUpdate;
     bool firstUpdate;
     std::chrono::system_clock::time_point waitStart;
+
+    bool _restricted;
     
     bool getValue(int x, int y)
     {
-        if (x < 0) x += size_x;
-        if (y < 0) y += size_y;
-        if (x > size_x-1) x -= size_x;
-        if (y > size_y-1) y -= size_y;
-        return data[x+y*size_x];
+        if(!_restricted)
+        {
+            if (x < 0) x += size_x;
+            if (y < 0) y += size_y;
+            if (x > size_x-1) x -= size_x;
+            if (y > size_y-1) y -= size_y;
+            return data[x+y*size_x];
+        }
+        else
+        {
+            if(x < 0 || x >= size_x-1) return false;
+            if(y < 0 || y >= size_y-1) return false;
+            return data[x+y*size_x];
+        }
     }
     bool updateCell(int x, int y)
     {
