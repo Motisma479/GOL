@@ -1,33 +1,29 @@
 //Game of life header file
 #include <stddef.h>
 #include <chrono>
-#define GOLsizeX 72
-#define GOLsizeY 72
-
-class world
-{
-public:
-    world();
-    ~world();
-    bool data [GOLsizeX][GOLsizeY];
-    bool getValue(int x, int y);
-    world operator=(world w);
-    bool updateCell(int x, int y);
-};
-
-
+#include "terminal.h"
 
 class GOL
 {
 public:
-    GOL();
+    bool isFinished;
+
+    GOL() = delete;
+    GOL(int size_x, int size_y);
     ~GOL();
+
     bool update(int delay);
     void terminalPrint();
     void changeCell(int x, int y);
-    bool isFinished;
 private:
-    world i_world;
+    Terminal terminal;
+    int sizeX, sizeY;
+    bool* data;
+    bool* tempData;
     bool shouldUpdate;
+    bool firstUpdate;
     std::chrono::system_clock::time_point waitStart;
+    
+    bool getValue(int x, int y);
+    bool updateCell(int x, int y);
 };
