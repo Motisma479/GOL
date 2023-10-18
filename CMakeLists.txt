@@ -6,7 +6,6 @@ include_directories ("Headers")
 
 set(SOURCES
     "Sources/main.cpp"
-	"Sources/GOL.cpp"
 )
 
 add_executable (${PROJECT_NAME} ${SOURCES})
