@@ -1,4 +1,5 @@
 //Game of life header file
+#pragma once
 #include <chrono>
 #include <iostream>
 #include <string>
@@ -80,6 +81,7 @@ public:
     }
     void terminalPrint()
     {
+        std::cout << std::flush;
         terminal.goAt(0,0);
         for (int y = 0; y < size_y; y++)
         {
@@ -90,7 +92,7 @@ public:
                 else
                     std::cout<< __COLOR_DEAD__ << "  "; // color: 255, 255, 255 by default
             } 
-            std::cout<<std::endl;
+            std::cout<<"\n";
         }
     }
     void changeCell(int x, int y)

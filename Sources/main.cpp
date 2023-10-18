@@ -2,67 +2,28 @@
 #define COLOR_DEAD "37;27;44"
 #include "GOL.hpp"
 #include <iostream>
+#include "Gen_Shape.hpp"
 
 int main()
 {
     std::system("chcp 65001");
-    GOL<50, 50> newWorld;
+    GOL<60, 29> gol;
 
-    // //-------------------------------------------------------------
-    // /*
-
-    //   ██
-    // ██  ██
-    // ██  ██
-    // ██  ██
-    //   ██
-
-    // */
-    // newWorld.changeCell(7,5);
-    // newWorld.changeCell(6,6);
-    // newWorld.changeCell(8,6);
-    // newWorld.changeCell(6,7);
-    // newWorld.changeCell(8,7);   
-    // newWorld.changeCell(6,8);
-    // newWorld.changeCell(8,8);
-    // newWorld.changeCell(7,9);
-    // //-------------------------------------------------------------
-
-    //-------------------------------------------------------------
-    /*
-
-      ██
-        ██
-    ██████
-
-    */
-    newWorld.changeCell(7,5);
-    newWorld.changeCell(8,6);
-    newWorld.changeCell(6,7);
-    newWorld.changeCell(7,7);
-    newWorld.changeCell(8,7);
-    //-------------------------------------------------------------
-
-    // //-------------------------------------------------------------
-    // /*
-        
-    // ██
-    // ██████
-    //   ██
-
-    // */
-    // newWorld.changeCell(7,5);
-    // newWorld.changeCell(7,6);
-    // newWorld.changeCell(8,6);
-    // newWorld.changeCell(9,6);
-    // newWorld.changeCell(8,7);
-    // //-------------------------------------------------------------
-
-    newWorld.terminalPrint(); //Print the first time
-    while (newWorld.isFinished == false)
+    for(const auto& i : genShape_1(30, 13))
     {
-        if(newWorld.update(50))
-            newWorld.terminalPrint();
+        gol.changeCell(i[0], i[1]);
+    }
+
+    for(const auto& i : genShape_1(0, 13))
+    {
+        gol.changeCell(i[0], i[1]);
+    }
+
+    gol.terminalPrint(); //Print the first time
+    while (gol.isFinished == false)
+    {
+        if(gol.update(100))
+            gol.terminalPrint();
     }
 
     system("pause");
