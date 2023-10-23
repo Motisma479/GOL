@@ -10,6 +10,10 @@ set(SOURCES
 
 add_executable (${PROJECT_NAME} ${SOURCES})
 
+#add flags to make the executable static
+SET(FLAGS_LINKER "-static -static-libgcc -static-libstdc++")
+SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${FLAGS_LINKER}")
+
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(DEBUG=1)
 else()
