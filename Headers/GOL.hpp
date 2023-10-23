@@ -28,6 +28,9 @@ public:
         isFinished = false;
         terminal.Init();
 
+        terminal.NewPage();
+
+        //init data
         for(int x = 0; x < size_x; x++)
         {
             for (int y = 0; y < size_y; y++)
@@ -39,10 +42,11 @@ public:
         shouldUpdate = true;
         firstUpdate = true;
         _restricted = restricted;
+        hasChanged = false;
     }
     ~GOL()
     {
-
+        std::cout << "\033[0m";
     }
 
     bool update(int delay)
@@ -67,6 +71,8 @@ public:
                     tempData.set(x+y*size_x, updateCell(x,y));
                 }
             }
+            isFinished = !hasChanged;
+            hasChanged = false;
             
             //copy tempData to data
             data = tempData;
@@ -83,7 +89,7 @@ public:
     void terminalPrint()
     {
         std::cout << std::flush;
-        terminal.goAt(0,0);
+        terminal.SetCurPos(0,0);
         for (int y = 0; y < size_y; y++)
         {
             for (int x = 0; x < size_x; x++)
@@ -110,6 +116,7 @@ private:
     std::chrono::system_clock::time_point waitStart;
 
     bool _restricted;
+    bool hasChanged;
     
     bool getValue(int x, int y)
     {
@@ -146,12 +153,18 @@ private:
         if (data[x+y*size_x])
         {
             if (livingArround<2 || livingArround>3)
+            {
+                hasChanged = true;
                 return false;
+            }
         }
         else
         {
             if (livingArround==3)
+            {
+                hasChanged = true;
                 return true;
+            }
         }
         return data[x+y*size_x];
     }
