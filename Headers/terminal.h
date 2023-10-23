@@ -1,10 +1,10 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
+#include <stdio.h>
 #if _WIN32
 #include <Windows.h>
 #else
-#include <stdio.h>
 #include <termios.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -40,8 +40,8 @@ struct Terminal
     {
 #if _WIN32
         GetConsoleScreenBufferInfo(handle, &cbsi);
-        x = cbsi.dwCursorPosition.X;
-        y = cbsi.dwCursorPosition.Y;
+        (*x) = cbsi.dwCursorPosition.X;
+        (*y) = cbsi.dwCursorPosition.Y;
 #else
         char buf[8];
         struct termios save,raw;
@@ -98,7 +98,7 @@ struct Terminal
         GetCurPos(&x,&y);
         for(int i = 0; i < a; i++)
         {
-            std::cout << std::endl;
+            printf("\n");
         }
     }
 };
