@@ -9,6 +9,14 @@
 
 int main()
 {
+#if WIN32 //Use for Windows 10- to support ansi color
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hOut, dwMode);
+#endif
+
     GOL<32, 16> gol;
 
     for(const auto& i : genShape_1(0, 0))
