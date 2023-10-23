@@ -46,7 +46,6 @@ public:
     }
     ~GOL()
     {
-        std::cout << "\033[0m";
     }
 
     bool update(int delay)
@@ -101,6 +100,7 @@ public:
             } 
             std::cout<<"\n";
         }
+        std::cout << "\033[0m";
     }
     void changeCell(int x, int y)
     {
