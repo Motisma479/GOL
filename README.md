@@ -10,7 +10,7 @@ This project is a Conway's Game of Life. I made it because I like this game so I
 
 ## ☕ Getting Started
 
-### Prequisites
+### Preconditions
 
 You will need CMake v3.8+ and a c++ compiler.
 
