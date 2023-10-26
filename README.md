@@ -1,4 +1,5 @@
-# Conway's Game of Life (C++ <U>__Terminal__</U> Edition)
+# Conway's Game of Life (C++ <ins>Terminal</ins> Edition)
+
 
 ## ⭐ About the Project
 
