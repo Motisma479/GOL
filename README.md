@@ -1,4 +1,4 @@
-# Conway's Game of Life (`LANGUAGE` `<ins>FORMAT</ins>` Edition)
+# Conway's Game of Life (`LANGUAGE` <ins>`FORMAT`</ins> Edition)
 
 
 ## ⭐ About the Project
