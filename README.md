@@ -1,4 +1,4 @@
-# Conway's Game of Life (`LANGUAGE` <ins>`FORMAT`</ins> Edition)
+# Conway's Game of Life (Python <ins>Terminal</ins> Edition)
 
 
 ## ⭐ About the Project
@@ -7,13 +7,13 @@ This project is a Conway's Game of Life. I made it because I like this game so I
 
 - __Some Characteristics :__
 
-    The Code is written in [![LANGUAGE_BADGE](https://img.shields.io/badge/LANGUAGE-BADGE-blue)](#) and `ADDITIONAL_INFORMATION_IF_NECESSARY`.
+    The Code is written in [![LANGUAGE_BADGE](https://img.shields.io/badge/Python-3.7.7-4173a7?labelColor=f9c414&style=flat&logo=Python)](https://www.python.org).
 
 ## ☕ Getting Started
 
 ### Preconditions
 
-`RESOURCES_NEEDED_FOR_LAUNCH_OR_COMPILATION`
+You need to install **Python**.
 
 ### Installation
 
@@ -21,7 +21,10 @@ This project is a Conway's Game of Life. I made it because I like this game so I
 
     Go find the edition you want in [the latest release](../../releases/latest) and download it.
 
-- `ADDITIONAL_INSTALLATION_INSTRUCTIONS`
+- With command :
+```bash
+python GOL.py
+```
 
 ## 📄 License
 - [__MIT License__](LICENSE)
