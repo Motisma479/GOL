@@ -14,92 +14,49 @@
 
 #include <Windows.h>
 #include <gdiplus.h>
-#include <Scrnsave.h>
+#include <scrnsave.h>
 #include <algorithm>
 
+#define COLOR_ALIVE 159, 223, 76
+#define COLOR_DEAD 37, 27, 44
 #include "GOL.hpp"
-#include "Gen_Shape.hpp"
-#include "ScreenSaver.hpp"
-#include "ScreenRenderer.hpp"
 
-Maths::IVec2 bitmapRes(100, 100);
+#include "Gen_Shape.hpp"
+
+constexpr int bitmapRes[2] = { 180, 100 };
+GOL<bitmapRes[0], bitmapRes[1]> gol;
+
 Gdiplus::Bitmap* bp = nullptr;
 
-GOL<100, 100> gol;
 
 BOOL WINAPI RegisterDialogClasses(HANDLE hInstance)
 {
     return TRUE;
 }
-
 BOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static HWND hSpeed;
-    static HWND hOK;
-    HRESULT result;
-
-    switch(message)
-    {
-    case WM_INITDIALOG:
-        result = LoadString(hMainInstance, idsAppName, szAppName, APPNAMEBUFFERLEN);
-        result = LoadString(hMainInstance, idsIniFile, szIniFile, MAXFILELEN);
-        hOK = GetDlgItem(hDlg, ID_OK);
-        return TRUE;
-
-    case WM_COMMAND:
-        switch (LOWORD(wParam))
-        {
-        case ID_OK:
-
-        case ID_CANCEL:
-			EndDialog(hDlg, LOWORD(wParam) == ID_OK);
-
-			return TRUE;
-		default:
-			return false;
-        }
-
-    case WM_CLOSE:
-        EndDialog(hDlg, 0);
-        return true;
-    }
-    return FALSE;
+	return FALSE;
 }
 
 void WriteData()
 {
-    unsigned int width = bp->GetWidth();
-    unsigned int height = bp->GetHeight();
-    {
-        Gdiplus::BitmapData bmdata;
-        Gdiplus::Rect rect(0, 0, width, height);
-        bp->LockBits(&rect, Gdiplus::ImageLockModeWrite, PixelFormat32bppRGB, &bmdata);
-        for (unsigned int y = 0; y < height; ++y)
-        {
-            unsigned int* line = (unsigned int*)((char*)bmdata.Scan0 + (size_t)bmdata.Stride * y);
-            auto source = gol.GetLineData(y);
-            std::copy(source, source + width, line);
-        }
-        bp->UnlockBits(&bmdata);
-    }
+    Gdiplus::BitmapData bmdata;
+    Gdiplus::Rect rect(0, 0, bitmapRes[0], bitmapRes[1]);
+    bp->LockBits(&rect, Gdiplus::ImageLockModeWrite, PixelFormat32bppRGB, &bmdata);
+
+	unsigned int* data = (unsigned int*)((char*)bmdata.Scan0);
+	auto source = gol.GetImageData();
+	std::copy(source, source + bitmapRes[0] * bitmapRes[1], data);
+
+    bp->UnlockBits(&bmdata);
 }
 
 void DrawScreen(HDC hdc, HWND hwnd)
 {
-	/*for (const auto& i : genShape_4(126, 126))
-	{
-		gol.SetCell(i[0], i[1], true);
-	}
-	for (const auto& i : genShape_4(124, 126))
-	{
-		gol.SetCell(i[0], i[1], true);
-	}*/
-
 	RECT rcClient;
 	GetClientRect(hwnd, &rcClient);
 	Gdiplus::Graphics graphics(hdc);
 
-	
 	gol.Print();
 	WriteData();
 
@@ -138,9 +95,10 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 	{
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hwnd, &ps);
-
-		if (gol.update(1))
+		
+		if (gol.update(100))
 			DrawScreen(hdc, hwnd);
+
 		EndPaint(hwnd, &ps);
 	}
 	return 0;
@@ -155,12 +113,24 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 		GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-		bp = new Gdiplus::Bitmap(bitmapRes.x, bitmapRes.y, PixelFormat32bppRGB);
+		bp = new Gdiplus::Bitmap(bitmapRes[0], bitmapRes[1], PixelFormat32bppRGB);
 
 		SetTimer(hwnd, 1, 0, NULL); // 2000ms
 
-		
-		for (const auto& i : genShape_3(50, 50))
+		//set the initial cell in the GOL.
+		for (const auto& i : genShape_5(20, 50))
+		{
+			gol.SetCell(i[0], i[1], true);
+		}
+		for (const auto& i : genShape_5(150, 50))
+		{
+			gol.SetCell(i[0], i[1], true);
+		}
+		for (const auto& i : genShape_5(50, 50))
+		{
+			gol.SetCell(i[0], i[1], true);
+		}
+		for (const auto& i : genShape_5(110, 50))
 		{
 			gol.SetCell(i[0], i[1], true);
 		}

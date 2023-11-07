@@ -6,15 +6,15 @@
 #include <bitset>
 
 #ifndef COLOR_ALIVE
-#define COLOR_ALIVE "0;0;0"
+#define COLOR_ALIVE 0, 0, 0
 #endif
 
 #ifndef COLOR_DEAD
-#define COLOR_DEAD "255;255;255"
+#define COLOR_DEAD 255, 255, 255
 #endif
 
-#define __COLOR_ALIVE__ "\033[48;2;" COLOR_ALIVE "m"
-#define __COLOR_DEAD__ "\033[48;2;" COLOR_DEAD "m"
+constexpr char ColAl[3] = { COLOR_ALIVE };
+constexpr char ColDe[3] = { COLOR_DEAD };
 
 template <int size_x, int size_y>
 class GOL
@@ -44,6 +44,7 @@ public:
     }
     ~GOL()
     {
+        delete[] imageData;
     }
 
     bool update(int delay)
@@ -59,7 +60,7 @@ public:
         if (shouldUpdate)
         {
             //copy data to tempData
-            auto tempData = std::bitset<size_x*size_y>(data);
+            auto tempData = std::bitset<size_x * size_y>(data);
 
             //cells work
             for (int x = 0; x < size_x; x++)
@@ -86,8 +87,6 @@ public:
         return false;
     }
 
-    unsigned char colA[3] = { 0,0,0 };
-    unsigned char colD[3] = { 255,255,255 };
     void Print()
     {
         //std::cout << std::flush;
@@ -106,12 +105,11 @@ public:
         //std::cout << "\033[0m";
         for (unsigned int i = 0; i <= pixelCount-1; i++)
         {
-            
-            unsigned int c = data[i] ? (colA[0] << 16) + (colA[1] << 8) + colA[2] : (colD[0] << 16) + (colD[1] << 8) + colD[2];
+            unsigned int c = data[i] ? (ColAl[0] << 16) + (ColAl[1] << 8) + ColAl[2] : (ColDe[0] << 16) + (ColDe[1] << 8) + ColDe[2];
             imageData[i] = c;
         }
     }
-    const unsigned int* GetLineData(unsigned int line) const { return imageData + size_x * 1llu * line; }
+    const unsigned int* GetImageData()const { return imageData; }
 
     void changeCell(int x, int y)
     {

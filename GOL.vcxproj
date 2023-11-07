@@ -22,6 +22,7 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{22BD8E07-77B8-4A8F-A0A9-380173886E5F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <ProjectName>GOL</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -141,21 +142,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Sources\Maths\Maths.cpp" />
-    <ClCompile Include="Sources\ScreenRenderer.cpp" />
     <ClCompile Include="sources\ScreenSaver.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Headers\Core\Types.hpp" />
     <ClInclude Include="Headers\Gen_Shape.hpp" />
     <ClInclude Include="headers\GOL.hpp" />
-    <ClInclude Include="Headers\Maths\Maths.hpp" />
-    <ClInclude Include="Headers\resource.h" />
-    <ClInclude Include="Headers\ScreenRenderer.hpp" />
-    <ClInclude Include="Headers\ScreenSaver.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Headers\Maths\Maths.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
