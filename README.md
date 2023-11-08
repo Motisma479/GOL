@@ -13,7 +13,7 @@ This project is a Conway's Game of Life. I made it because I like this game so I
 
 ### Preconditions
 
-You will need to install [Visual Studio](https://visualstudio.microsoft.com/).
+You will need to install [Visual Studio  2022](https://visualstudio.microsoft.com/).
 
 ### Installation
 
