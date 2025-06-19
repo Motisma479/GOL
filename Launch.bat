@@ -1,1 +1,3 @@
 lua main.lua
+
+pause
