@@ -7,8 +7,9 @@ This project is a Conway's Game of Life. I made it because I like this game so I
 
 - __Versions :__
 
-    - [__C++ Terminal__](https://github.com/Motisma479/GOL/tree/C%2B%2B_Terminal/)
-    - [__C++ ScreenSaver__](https://github.com/Motisma479/GOL/tree/C%2B%2B_ScreenSaver/)
+    - [__C++ Terminal__](https://github.com/Motisma479/GOL/tree/C++_Terminal/)
+    - [__C++ ScreenSaver__](https://github.com/Motisma479/GOL/tree/C++_ScreenSaver/)
+    - [__Lua Terminal__](https://github.com/Motisma479/GOL/tree/Lua_Terminal/)
     - [__Python Terminal__](https://github.com/Motisma479/GOL/tree/Python_Terminal/)
 
 ## ☕ Getting Started
