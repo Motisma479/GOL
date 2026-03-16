@@ -1,4 +1,4 @@
-# Conway's Game of Life (C++ <ins>Terminal</ins> Edition)
+# Conway's Game of Life (C++ <ins>raylib</ins> Edition)
 
 
 ## ⭐ About the Project
@@ -9,6 +9,12 @@ This project is a Conway's Game of Life. I made it because I like this game so I
 
     The Code is written in [![C++](https://img.shields.io/badge/C%2B%2B-v17-blue)](https://isocpp.org/) and compilled with [![CMake](https://img.shields.io/badge/CMake-v3.8-blue?labelColor=gray&style=flat)](https://cmake.org/). It should be Cross Platform with windows and Linux.
 
+- __raylib__
+
+    [<img style="width:120px" src="https://github.com/raysan5/raylib/blob/master/logo/raylib_logo_animation.gif" width="120px"/>](https://github.com/raysan5/raylib/tree/master)
+
+    This version use [raylib](https://github.com/raysan5/raylib/tree/master) for the interface.
+ 
 ## ☕ Getting Started
 
 ### Preconditions
