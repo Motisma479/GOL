@@ -1,3 +1,4 @@
+/*
 #include <iostream>
 
 #define COLOR_ALIVE "159;223;76"
@@ -43,6 +44,36 @@ int main()
     gol.~GOL();
 
     PAUSE;
+
+    return 0;
+}
+*/
+#include <raylib.h>
+
+int main(void)
+{ 
+    const int screenWidth = 1024;
+    const int screenHeight = 576;
+
+    InitWindow(screenWidth, screenHeight, "Conway's Game of Life (C++ raylib Edition)");
+
+    SetTargetFPS(60);
+
+    while (!WindowShouldClose())
+    {
+        
+        //Render
+        //----------------------------------------------------------------------------------
+        BeginDrawing();
+            ClearBackground(WHITE);
+
+            DrawText("Comming soon...", 10, 511, 60, BLACK);
+
+        EndDrawing();
+        //----------------------------------------------------------------------------------
+    }
+
+    CloseWindow();
 
     return 0;
 }
