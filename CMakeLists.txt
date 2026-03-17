@@ -1,11 +1,15 @@
 cmake_minimum_required(VERSION 3.8)
 project(GOL)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 include_directories ("Headers")
 
 set(SOURCES
     "Sources/main.cpp"
+    "Sources/App.cpp"
+
+    "Sources/Cell.cpp"
+    "Sources/Camera.cpp"
 )
 
 add_subdirectory(Externals/raylib)

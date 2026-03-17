@@ -1,79 +1,22 @@
-/*
+#include "App.hpp"
 #include <iostream>
-
-#define COLOR_ALIVE "159;223;76"
-#define COLOR_DEAD "37;27;44"
-#include "GOL.hpp"
-
-#include "Gen_Shape.hpp"
-#include "Utils.hpp"
+#include <bit>
+#include <bitset>
 
 int main()
 {
-#if WIN32 //Use for Windows 10- to support ansi color
-    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    DWORD dwMode = 0;
-    GetConsoleMode(hOut, &dwMode);
-    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-    SetConsoleMode(hOut, dwMode);
-#endif
+	App app(1024, 576, "Conway's Game of Life (C++ raylib Edition)");
 
-    GOL<32, 16> gol;
+	app.Update();
 
-    for(const auto& i : genShape_1(0, 0))
-    {
-        gol.changeCell(i[0], i[1]);
-    }
-    for(const auto& i : genShape_2(8, 6))
-    {
-        gol.changeCell(i[0], i[1]);
-    }
+	u8 off = 1;
+	u8 test = 1 << off;
 
-    for(const auto& i : genShape_2(16, 6))
-    {
-        gol.changeCell(i[0], i[1]);
-    }
+	std::cout << std::bitset<8>(test) << std::endl;
 
-    gol.terminalPrint(); //Print the first time
-    while (gol.isFinished == false)
-    {
-        if(gol.update(100))
-            gol.terminalPrint();
-    }
+	test = (1 << 7) >> off;
 
-    gol.~GOL();
+	std::cout << std::bitset<8>(test) << std::endl;
 
-    PAUSE;
-
-    return 0;
-}
-*/
-#include <raylib.h>
-
-int main(void)
-{ 
-    const int screenWidth = 1024;
-    const int screenHeight = 576;
-
-    InitWindow(screenWidth, screenHeight, "Conway's Game of Life (C++ raylib Edition)");
-
-    SetTargetFPS(60);
-
-    while (!WindowShouldClose())
-    {
-        
-        //Render
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
-            ClearBackground(WHITE);
-
-            DrawText("Comming soon...", 10, 511, 60, BLACK);
-
-        EndDrawing();
-        //----------------------------------------------------------------------------------
-    }
-
-    CloseWindow();
-
-    return 0;
+	return 0;
 }
