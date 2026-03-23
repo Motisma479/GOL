@@ -7,16 +7,22 @@ void GOL::Camera::Init(f32 _targetX, f32 _targetY, f32 _zoom)
     rcam = { 0 };
     rcam.target = { _targetX, _targetY };
     rcam.zoom = _zoom;
+    move = false;
 }
 
 void GOL::Camera::Update()
 {
+    move = false;
     // Translate based on mouse right click
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
     {
         Vector2 delta = GetMouseDelta();
         delta = Vector2Scale(delta, -1.0f / rcam.zoom);
         rcam.target = Vector2Add(rcam.target, delta);
+        if (delta.x != 0 && delta.y != 0)
+        {
+            move = true;
+        }
     }
 
     // Zoom based on mouse wheel
@@ -36,8 +42,41 @@ void GOL::Camera::Update()
         // Zoom increment
         // Uses log scaling to provide consistent zoom speed
         float scale = 0.2f * wheel;
-        rcam.zoom = Clamp(expf(logf(rcam.zoom) + scale), 0.125f, 64.0f);
+        rcam.zoom = Clamp(expf(logf(rcam.zoom) + scale), 2.f, 64.0f);
+        move = true;
     }
+}
+
+f32 GOL::Camera::GetZoom()
+{
+    return rcam.zoom;
+}
+f32 GOL::Camera::GetTargetX()
+{
+    return rcam.target.x;
+}
+f32 GOL::Camera::GetTargetY()
+{
+    return rcam.target.y;
+}
+
+Vector2 GOL::Camera::GetMinWorld()
+{
+    Vector2 topLeft = GetScreenToWorld2D({ 0, 0 }, rcam);
+    topLeft += {-1, -1};
+
+    return topLeft;
+}
+
+Vector2 GOL::Camera::GetMaxWorld()
+{
+    Vector2 bottomRight = GetScreenToWorld2D(
+        { (float)1024, (float)576 },
+        rcam
+    );
+    bottomRight += {1, 1};
+
+    return bottomRight;
 }
 
 void GOL::Camera::BegingContext()
@@ -53,14 +92,26 @@ void GOL::Camera::EndContext()
 bool GOL::Camera::CanRender(s32 _x, s32 _y)
 {
     Vector2 topLeft = GetScreenToWorld2D({ 0, 0 }, rcam);
-    topLeft += {-1, -1};
+    topLeft += {-8, -8};
     Vector2 bottomRight = GetScreenToWorld2D(
         { (float)1024, (float)576 },
         rcam
     );
 
+    _x *= 8;
+    _y *= 8;
     return _x >= topLeft.x &&
         _x <= bottomRight.x &&
         _y >= topLeft.y &&
         _y <= bottomRight.y;
+}
+
+bool GOL::Camera::IsMoving()
+{
+    return move;
+}
+
+Vector2 GOL::Camera::ScreenPosToWorlPos(Vector2 _pos)
+{
+    return GetScreenToWorld2D(_pos, rcam);
 }
