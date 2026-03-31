@@ -3,6 +3,7 @@ project(GOL)
 set(CMAKE_CXX_STANDARD 20)
 
 include_directories ("Headers")
+add_compile_definitions(GOL_VERSION="1.0.0")
 
 set(SOURCES
     "Sources/main.cpp"
@@ -13,6 +14,7 @@ set(SOURCES
     "Sources/Camera.cpp"
 
     "Sources/UI/Button.cpp"
+    "Sources/UI/Slider.cpp"
 )
 
 add_subdirectory(Externals/raylib)

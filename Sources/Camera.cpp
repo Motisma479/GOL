@@ -10,11 +10,11 @@ void GOL::Camera::Init(f32 _targetX, f32 _targetY, f32 _zoom)
     move = false;
 }
 
-void GOL::Camera::Update()
+void GOL::Camera::Update(bool _canMove)
 {
     move = false;
     // Translate based on mouse right click
-    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && _canMove)
     {
         Vector2 delta = GetMouseDelta();
         delta = Vector2Scale(delta, -1.0f / rcam.zoom);

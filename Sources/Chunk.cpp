@@ -226,7 +226,7 @@ void Chunk::Update(std::unique_ptr<Chunk>& _edit)
     }
 
     if (_edit->data == 0 && (x != 0 || y != 0 )) _edit->life++;
-    else _edit->life = 0;
+    else _edit->life = life = 0;
 }
 
 
@@ -280,7 +280,7 @@ void Chunk::CreateNewChunks(std::queue<ChunkPos>& _toAdd)
         ((data >> 39) & 1) << 4 |
         ((data >> 47) & 1) << 5 |
         ((data >> 55) & 1) << 6 |
-        ((data >> 64) & 1) << 7;
+        ((data >> 63) & 1) << 7;
     if (r & (r >> 1) & (r >> 2))
     {
         createRight = true;
@@ -295,7 +295,7 @@ void Chunk::CreateNewChunks(std::queue<ChunkPos>& _toAdd)
         ((data >> 59) & 1) << 3 |
         ((data >> 60) & 1) << 4 |
         ((data >> 61) & 1) << 5 |
-        ((data >> 63) & 1) << 6 |
+        ((data >> 62) & 1) << 6 |
         ((data >> 63) & 1) << 7;
     if (d & (d >> 1) & (d >> 2))
     {
@@ -311,6 +311,10 @@ void Chunk::CreateNewChunks(std::queue<ChunkPos>& _toAdd)
 
             _toAdd.push({ nX, nY });
         }
+        else
+        {
+            up->life = 0;
+        }
     }
     if (createDown)
     {
@@ -320,6 +324,10 @@ void Chunk::CreateNewChunks(std::queue<ChunkPos>& _toAdd)
             s32 nY = y + 1;
 
             _toAdd.push({ nX, nY });
+        }
+        else
+        {
+            down->life = 0;
         }
     }
     if (createLeft)
@@ -331,6 +339,10 @@ void Chunk::CreateNewChunks(std::queue<ChunkPos>& _toAdd)
 
             _toAdd.push({ nX, nY });
         }
+        else
+        {
+            left->life = 0;
+        }
     }
     if (createRight)
     {
@@ -340,6 +352,10 @@ void Chunk::CreateNewChunks(std::queue<ChunkPos>& _toAdd)
             s32 nY = y;
 
             _toAdd.push({ nX, nY });
+        }
+        else
+        {
+            right->life = 0;
         }
     }
 
@@ -353,6 +369,10 @@ void Chunk::CreateNewChunks(std::queue<ChunkPos>& _toAdd)
 
             _toAdd.push({ nX, nY });
         }
+        else
+        {
+            upLeft->life = 0;
+        }
     }
     if (createUpRight)
     {
@@ -362,6 +382,10 @@ void Chunk::CreateNewChunks(std::queue<ChunkPos>& _toAdd)
             s32 nY = y - 1;
 
             _toAdd.push({ nX, nY });
+        }
+        else
+        {
+            upRight->life = 0;
         }
     }
     if (createDownLeft)
@@ -373,6 +397,10 @@ void Chunk::CreateNewChunks(std::queue<ChunkPos>& _toAdd)
 
             _toAdd.push({ nX, nY });
         }
+        else
+        {
+            downLeft->life = 0;
+        }
     }
     if (createDownRight)
     {
@@ -382,6 +410,10 @@ void Chunk::CreateNewChunks(std::queue<ChunkPos>& _toAdd)
             s32 nY = y + 1;
 
             _toAdd.push({ nX, nY });
+        }
+        else
+        {
+            downRight->life = 0;
         }
     }
     

@@ -11,7 +11,7 @@ namespace GOL
 		bool move;
 	public:
 		void Init(f32 _targetX, f32 _targetY, f32 _zoom);
-		void Update();
+		void Update(bool _canMove);
 		f32 GetZoom();
 		f32 GetTargetX();
 		f32 GetTargetY();

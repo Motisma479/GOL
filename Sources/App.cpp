@@ -20,8 +20,8 @@ void App::CreateCross(s32 _x, s32 _y)
 
 void App::PlaceCell(s32 _x, s32 _y)
 {
-    s32 chunkX = _x < 0 ? (((_x - 8) / 8)) : (_x / 8);
-    s32 chunkY = _y < 0 ? (((_y - 8) / 8)) : (_y / 8);
+    s32 chunkX = _x < 0 ? (((_x - 7) / 8)) : (_x / 8);
+    s32 chunkY = _y < 0 ? (((_y - 7) / 8)) : (_y / 8);
     
     s32 relX = _x - (8 * chunkX);
     s32 relY = _y - (8 * chunkY);
@@ -33,14 +33,12 @@ void App::PlaceCell(s32 _x, s32 _y)
     auto itC = chunks.find({ chunkX, chunkY });
     if ((itC != chunks.end()))
     {
-        itC->second.get()->data |= data;
-        //auto itE = chunks.find({ chunkX, chunkY });
-        //itE->second.get()
+        itC->second.get()->data ^= data;
     }
     else
     {
-        chunks.emplace(std::make_pair<ChunkPos, std::unique_ptr<Chunk>>({ chunkX,chunkY }, std::make_unique<Chunk>(chunkX, chunkY, data)));
-        edit.emplace(std::make_pair<ChunkPos, std::unique_ptr<Chunk>>({ chunkX,chunkY }, std::make_unique<Chunk>(chunkX, chunkY, 0)));
+        chunks.emplace(std::make_pair<ChunkPos, std::unique_ptr<Chunk>>({ chunkX,chunkY }, std::make_unique<Chunk>(chunkX, chunkY, data))).first->second.get()->DoLinks(chunks);
+        edit.emplace(std::make_pair<ChunkPos, std::unique_ptr<Chunk>>({ chunkX,chunkY }, std::make_unique<Chunk>(chunkX, chunkY, 0))).first->second.get()->DoLinks(edit);
     }
 }
 
@@ -128,37 +126,17 @@ Mesh GenGolPlane(float width, float height)
 
 App::App(s32 _width, s32 _height, const char* _name)
 {
+    width = _width; height = _height;
     InitWindow(_width, _height, _name);
     cam.Init(-25.6f, -14.4f, 20.0f);
 
-
-    //chunks.emplace(std::make_pair<ChunkPos, std::unique_ptr<Chunk>>({-1,0}, std::make_unique<Chunk>(-1, 0, 584388742947276800)));
-    //chunks.emplace(std::make_pair<ChunkPos, std::unique_ptr<Chunk>>({-1,0}, std::make_unique<Chunk>(-1, 0, 7918829344391168)));
-    //chunks.emplace(std::make_pair<ChunkPos, std::unique_ptr<Chunk>>({-1,0}, std::make_unique<Chunk>(-1, 0, 2017684381581188096)));
     chunks.emplace(std::make_pair<ChunkPos, std::unique_ptr<Chunk>>({0,0}, std::make_unique<Chunk>(0, 0, 0)));
     edit.emplace(std::make_pair<ChunkPos, std::unique_ptr<Chunk>>({ 0,0 }, std::make_unique<Chunk>(0, 0, 0)));
-    //edit.emplace(std::make_pair<ChunkPos, std::unique_ptr<Chunk>>({ -1,0 }, std::make_unique<Chunk>(-1, 0, 0)));
 
 
-    for (int i = 0; i < 20; i++)
-        for (int j = 0; j < 20; j++)
-            CreateCross(i * 16 + 3 ,j * 16 + 4);
-
-    /*PlaceCell(11, 4);
-    PlaceCell(12, 4);
-    PlaceCell(12, 6);
-    PlaceCell(13, 4);
-    PlaceCell(13, 5);*/
-    //PlaceCell(11, 4);
-    //PlaceCell(11, 6);
-    //PlaceCell(12, 3);
-    //PlaceCell(13, 3);
-    //PlaceCell(14, 3);
-    //PlaceCell(15, 3);
-    //PlaceCell(15, 4);
-    //PlaceCell(15, 5);
-    //PlaceCell(14, 6);
-
+    for (int i = 0; i < 50; i++)
+        for (int j = 0; j < 50; j++)
+            CreateCross( i * 10, j * 10);
 
     auto get = [](int x, int y, std::unordered_map<ChunkPos, std::unique_ptr<Chunk>, ChunkPosHash>& chunks) -> Chunk*
     {
@@ -170,23 +148,8 @@ App::App(s32 _width, s32 _height, const char* _name)
     {
         std::unique_ptr<Chunk>& editableChunk = edit.at(pos);
 
-        chunk->upLeft = get(pos.x - 1, pos.y - 1, chunks);
-        chunk->up = get(pos.x, pos.y - 1, chunks);
-        chunk->upRight = get(pos.x + 1, pos.y - 1, chunks);
-        chunk->left = get(pos.x - 1, pos.y, chunks);
-        chunk->right = get(pos.x + 1, pos.y, chunks);
-        chunk->downLeft = get(pos.x - 1, pos.y + 1, chunks);
-        chunk->down = get(pos.x, pos.y + 1, chunks);
-        chunk->downRight = get(pos.x + 1, pos.y + 1, chunks);
-
-        editableChunk->upLeft = get(pos.x - 1, pos.y - 1, edit);
-        editableChunk->up = get(pos.x, pos.y - 1, edit);
-        editableChunk->upRight = get(pos.x + 1, pos.y - 1, edit);
-        editableChunk->left = get(pos.x - 1, pos.y, edit);
-        editableChunk->right = get(pos.x + 1, pos.y, edit);
-        editableChunk->downLeft = get(pos.x - 1, pos.y + 1, edit);
-        editableChunk->down = get(pos.x, pos.y + 1, edit);
-        editableChunk->downRight = get(pos.x + 1, pos.y + 1, edit);
+        chunk->DoLinks(chunks);
+        editableChunk->DoLinks(edit);
 
         if (cam.CanRender(pos.x, pos.y))
             drawData.push_back(chunk->drawData);
@@ -249,11 +212,21 @@ App::App(s32 _width, s32 _height, const char* _name)
     golBuffer = rlLoadShaderBuffer(maxChunkPerScreen * sizeof(DrawChunkData), drawData.data(), RL_STATIC_DRAW);
     rlBindShaderBuffer(golBuffer, 0);
 
-    button.Init(8, 8, 30, 30);
+    more.Init(width - 38, height - 38, 30, 30);
+    next.Init(8, 8, 30, 30);
+    playPause.Init(46, 8, 30, 30);
+    reset.Init(84, 8, 30, 30);
+    playRateSlider.Init(8, 46, 107, 16, 1000, 0);
+    gridButton.Init(8, _height - 38, 30, 30);
 
     golMesh = GenGolPlane(8, 8);
     matInstances = LoadMaterialDefault();
     matInstances.shader = golShader;
+
+    preFrameTime = std::chrono::high_resolution_clock::now();
+    DT = 0;
+    minDT = 100000000;
+    maxDT = 0;
 }
 
 App::~App()
@@ -263,15 +236,23 @@ App::~App()
 
 void App::Update()
 {   
-    //Texture img = LoadTexture("Resources/grays.png");
-    //Texture img = LoadTexture("Resources/but1.png");
-    //Texture img = LoadTexture("Resources/but2.png");
-    //Texture img = LoadTexture("Resources/pla.png");
-    //Texture img = LoadTexture("Resources/pse.png");
-    //more = LoadTexture("Resources/more.png");
-
-    while (!WindowShouldClose())        // Detect window close button or ESC key
+    while (!WindowShouldClose())
     {
+        std::chrono::high_resolution_clock::time_point frameTime = std::chrono::high_resolution_clock::now();
+        deltaTime = std::chrono::duration<f32, std::milli>(frameTime - preFrameTime).count();
+        preFrameTime = frameTime;
+
+        static f32 timer = 0;
+        timer += deltaTime;
+        if (timer >= 500.0f)
+        {
+            DT = deltaTime;
+            f32 alpha = 0.05f;
+            timer -= 500.0f;
+        }
+        minDT = deltaTime < minDT ? deltaTime : minDT;
+        maxDT = deltaTime > maxDT ? deltaTime : maxDT;
+
         //DEBUG
         if (IsKeyPressed(KEY_F3))
         {
@@ -280,12 +261,12 @@ void App::Update()
         }
         if (debugEnable)
         {
-            SetWindowTitle(TextFormat("Conway's Game of Life (C++ raylib Edition) [zoom: %f ]", cam.GetZoom()));
+            SetWindowTitle(TextFormat("Conway's Game of Life (C++ raylib Edition) | [zoom: %f ] [FPS: %.2f/%.2fms min:%.2fms max%.2fms]", cam.GetZoom(), 1000/DT, DT, minDT, maxDT));
         }
         
-        cam.Update();
-        /*camRefresh++;
-        if (cam.IsMoving() && camRefresh > 30)
+        cam.Update(!uiHovered);
+        camRefresh+=deltaTime;
+        if (cam.IsMoving() && camRefresh >= 5.f)
         {
             drawData.clear();
             for (auto& [pos, chunk] : chunks)
@@ -294,123 +275,81 @@ void App::Update()
                     drawData.push_back(chunk->drawData);
             }
             rlUpdateShaderBuffer(golBuffer, drawData.data(), drawData.size() * sizeof(DrawChunkData), 0);
-            camRefresh = 0;
-        }*/
+            camRefresh -= 5.f;
+        }
 
+        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+        {
+            Vector2 worldMouse = cam.ScreenPosToWorlPos(GetMousePosition());
+            int cellX = std::floor(worldMouse.x);
+            int cellY = std::floor(worldMouse.y);
+
+            PlaceCell(cellX, cellY);
+            drawData.clear();
+            for (auto& [pos, chunk] : chunks)
+            {
+                if (cam.CanRender(pos.x, pos.y))
+                    drawData.push_back(chunk->drawData);
+            }
+            rlUpdateShaderBuffer(golBuffer, drawData.data(), drawData.size() * sizeof(DrawChunkData), 0);
+        }
 
         UpdateUI();
 
-        UpdateGOL(update);
+
+        if (autoMode)
+        {
+            static f32 golTimer = 0;
+            golTimer += deltaTime;
+            if (golTimer >= playRate)
+            {
+                UpdateGOL();
+                golTimer -= playRate;
+            }
+        }
+        //UpdateGOL(update); //-------------------------------------------------------------------------------------------------
+
+        //draw-------------------------
         
         BeginDrawing();
-        ClearBackground(WHITE);
+        if(debugEnable)
+            ClearBackground(GREEN);
+        else
+            ClearBackground(WHITE);
 
         cam.BegingContext();
 
         RenderGOL();
 
-        //draw a grid centered on the camera
-        if (cam.GetZoom() > 5)
-        {
-            Vector2 m = cam.GetMinWorld();
-            Vector2 M = cam.GetMaxWorld();
-            for (int i = m.x; i < M.x; i++)
-                DrawLine(i, m.y, i, M.y, BLACK);
-            for (int j = m.y; j < M.y; j++)
-                DrawLine(m.x, j, M.x, j, BLACK);
-
-        }
-
         cam.EndContext();
 
-        // Draw mouse reference
-        //Vector2 mousePos = GetWorldToScreen2D(GetMousePosition(), camera)
-        DrawCircleV(GetMousePosition(), 2, DARKGRAY);
-        
-        {
-        //reload
-        //if (GetMousePosition().x > 0 && GetMousePosition().x < 100 && GetMousePosition().y > 0 && GetMousePosition().y < 100)
-        //    DrawTexturePro(img, { 0,0,16,16 }, { 0, 0, 100, 100 }, { 0,0 }, 0, { 128,159,255,255 });
-        //else
-        //    DrawTexturePro(img, {0,0,16,16}, { 0, 0, 100, 100 }, { 0,0 }, 0, { 66,112,255,255 });
-
-        //play
-        //if (GetMousePosition().x > 0 && GetMousePosition().x < 100 && GetMousePosition().y > 0 && GetMousePosition().y < 100)
-        //    DrawTexturePro(img, { 0,0,16,16 }, { 0, 0, 100, 100 }, { 0,0 }, 0, { 160,255,160,255 });
-        //else
-        //    DrawTexturePro(img, {0,0,16,16}, { 0, 0, 100, 100 }, { 0,0 }, 0, { 0,255,0,255 });
-
-        //pause
-        //if (GetMousePosition().x > 0 && GetMousePosition().x < 100 && GetMousePosition().y > 0 && GetMousePosition().y < 100)
-        //    DrawTexturePro(img, { 0,0,16,16 }, { 0, 0, 128, 128 }, { 0,0 }, 0, { 255,160,160,255 });
-        //else
-        //    DrawTexturePro(img, {0,0,16,16}, { 0, 0, 128, 128 }, { 0,0 }, 0, { 255,0,0,255 });
-
-        //button
-        //if (GetMousePosition().x > 0 && GetMousePosition().x < 100 && GetMousePosition().y > 0 && GetMousePosition().y < 100)
-        //    DrawTexturePro(img, { 0,0,16,16 }, { 0, 0, 100, 100 }, { 0,0 }, 0, { 255,212,212,255 });
-        //else
-        //    DrawTexturePro(img, {0,0,16,16}, { 0, 0, 100, 100 }, { 0,0 }, 0, WHITE);
-        }
 
         RenderUI();
+        
+        DrawCircleV(GetMousePosition(), 2, DARKGRAY);
 
-        if (debugEnable)
-        {
-            DrawRectangleRounded({ (float)GetMouseX() + 25, (float)GetMouseY() -40, 210,80}, 0.25, 10, DARKBLUE);
-            DrawRectangleRounded({ (float)GetMouseX() + 30, (float)GetMouseY() -35, 200,70}, 0.25, 10, SKYBLUE);
-
-
-            DrawTextEx(GetFontDefault(), "Mouse:",
-                Vector2Add(GetMousePosition(), { 35, -30 }), 20, 2, BLACK);
-            DrawTextEx(GetFontDefault(), TextFormat("[%i, %i]", GetMouseX(), GetMouseY()),
-                Vector2Add(GetMousePosition(), { 115, -30 }), 20, 2, BLACK);
-
-            Vector2 worldMouse = cam.ScreenPosToWorlPos(GetMousePosition());
-            int cellX = std::floor(worldMouse.x);
-            int cellY = std::floor(worldMouse.y);
-            DrawTextEx(GetFontDefault(), "Cell:",
-                Vector2Add(GetMousePosition(), { 35, -10 }), 20, 2, BLACK);
-            DrawTextEx(GetFontDefault(), TextFormat("[%i, %i]", cellX, cellY),
-                Vector2Add(GetMousePosition(), { 115, -10 }), 20, 2, BLACK);
-
-            int chunkX = cellX < 0 ? (((cellX -8) / 8)) : (cellX / 8);
-            int chunkY = cellY < 0 ? (((cellY -8) / 8)) : (cellY / 8);
-
-            DrawTextEx(GetFontDefault(), "Chunk:",
-                Vector2Add(GetMousePosition(), { 35, 10 }), 20, 2, BLACK);
-            DrawTextEx(GetFontDefault(), TextFormat("[%i, %i]", chunkX, chunkY),
-                Vector2Add(GetMousePosition(), { 115, 10 }), 20, 2, BLACK);
-        }
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
 }
 
-
-void App::UpdateGOL(u32 _update)
-{
-    if (!_update) return;
-    
+void App::UpdateGOL()
+{   
     drawData.clear();
     std::queue<ChunkPos> markedForDelete;
     std::queue<ChunkPos> markedForAddition;//maybe using this will solve the probleme?
 
     for (auto& [pos, chunk] : chunks)
     {
-        if (pos.x == 0 && pos.y == 16)
-        {
-            int a = 0;
-            a++;
-        }
         std::unique_ptr<Chunk>& editableChunk = edit.at(pos);
+        chunk->CreateNewChunks(markedForAddition);
         chunk->Update(editableChunk);
-        editableChunk->CreateNewChunks(markedForAddition);
         if (editableChunk->ShouldDelete())
         {
             markedForDelete.push(pos);
         }
-        else if(editableChunk->data != 0 && cam.CanRender(pos.x, pos.y))
+        //else if(editableChunk->data != 0 && cam.CanRender(pos.x, pos.y))
+        else if(cam.CanRender(pos.x, pos.y))
             drawData.push_back(editableChunk->drawData);
     }
 
@@ -441,7 +380,8 @@ void App::UpdateGOL(u32 _update)
         existE->DoLinks(edit);
 
         existC->Update(edit.at(pos));
-        if (existE->data != 0 && cam.CanRender(pos.x, pos.y))
+        //if (existE->data != 0 && cam.CanRender(pos.x, pos.y))
+        if (cam.CanRender(pos.x, pos.y))
             drawData.push_back(existE->drawData);
 
         markedForAddition.pop();
@@ -450,18 +390,45 @@ void App::UpdateGOL(u32 _update)
     chunks.swap(edit);
 
     rlUpdateShaderBuffer(golBuffer, drawData.data(), drawData.size() * sizeof(DrawChunkData), 0);
-    //update = 0;
     return;
 }
 
 void App::UpdateUI()
 {
-    button.Update(GetMouseX(), GetMouseY());
+    uiHovered = false;
+    s32 x = GetMouseX(); s32 y = GetMouseY();
 
-    if (button.Pressed())
+    playRateSlider.Update(x,y);
+    uiHovered |= playRateSlider.Hovered();
+    playRate = playRateSlider.Result();
+    
+    next.Update(x, y);
+    uiHovered |= next.Hovered();
+    if (next.Pressed())
     {
-        update = 1;
-        std::cout << "drawn chunk: " << drawData.size() << "\n";
+        UpdateGOL();
+    }
+
+    playPause.Update(x, y);
+    uiHovered |= playPause.Hovered();
+    if (playPause.Pressed())
+    {
+        autoMode = !autoMode;
+    }
+
+    reset.Update(x, y);
+
+    more.Update(x, y);
+    uiHovered |= more.Hovered();
+    if (more.Pressed())
+    {
+        moreToggle = !moreToggle;
+    }
+
+    gridButton.Update(x, y);
+    if (gridButton.Pressed())
+    {
+        showGrid = !showGrid;
     }
 }
 
@@ -480,22 +447,96 @@ void App::RenderGOL()
 
 void App::RenderUI()
 {
-    button.Render();
+    cam.BegingContext();
 
-
-    //more button
-    /*if (GetMousePosition().x > 0 && GetMousePosition().x < 100 && GetMousePosition().y > 0 && GetMousePosition().y < 100)
+    //draw a grid centered on the camera
+    if (showGrid && cam.GetZoom() > 5)
     {
-        DrawRectangleRounded({ 8, 8, 36, 36 }, 0.2, 1, LIGHTGRAY);
-        DrawRectangleRoundedLinesEx({ 8, 8, 36, 36 }, 0.2, 1,2, BLACK);
+        Vector2 m = cam.GetMinWorld();
+        Vector2 M = cam.GetMaxWorld();
+        if (debugEnable)
+        {
+            for (s32 i = m.x; i < M.x; i++)
+                if (i % 8 == 0)
+                    DrawLineEx({ (f32)i, m.y }, { (f32)i, M.y }, 0.32, RED);
+                else
+                    DrawLine(i, m.y, i, M.y, BLACK);
+            for (s32 j = m.y; j < M.y; j++)
+                if (j % 8 == 0)
+                    DrawLineEx({ m.x, (f32)j }, { M.x, (f32)j }, 0.32, RED);
+                else
+                    DrawLine(m.x, j, M.x, j, BLACK);
+        }
+        else
+        {
+            for (s32 i = m.x; i < M.x; i++)
+                DrawLine(i, m.y, i, M.y, BLACK);
+            for (s32 j = m.y; j < M.y; j++)
+                DrawLine(m.x, j, M.x, j, BLACK);
+        }
 
-        DrawTexturePro(more, { 0,0,16,16 }, { 10, 10, 32, 32 }, { 0,0 }, 0, { 255,212,212,255 });
     }
-    else
-    {
-        DrawRectangleRounded({ 10, 10, 32, 32 }, 0.2, 1, LIGHTGRAY);
-        DrawRectangleRoundedLinesEx({ 10, 10, 32, 32 }, 0.2, 1, 2, BLACK);
+    
+    cam.EndContext();
 
-        DrawTexturePro(more, { 0,0,16,16 }, { 10, 10, 32, 32 }, { 0,0 }, 0, WHITE);
-    }*/
+    next.RenderWithTexture(1, WHITE, { 255,212,212,255 });
+    if(autoMode)
+        playPause.RenderWithTexture(5, { 255,0,0,255 }, { 255,160,160,255 });
+    else
+        playPause.RenderWithTexture(4, { 0,255,0,255 }, { 160,255,160,255 });
+
+    reset.RenderWithTexture(6, { 66,112,255,255 }, { 128,159,255,255 });
+
+    playRateSlider.Render();
+
+    more.RenderWithTexture(2, WHITE, { 255,212,212,255 });
+    if (moreToggle)
+    {
+        DrawRectangle(width - 246, height - 168, 200, 160, DARKGRAY);
+        DrawRectangle(width - 241, height - 163, 190, 150, LIGHTGRAY);
+        DrawText(TextFormat("Chunks: %i", chunks.size()), width - 236, height - 160, 20, BLACK);
+        DrawText(TextFormat("Draw: %i", drawData.size()), width - 236, height - 140, 20, BLACK);
+
+        DrawText(TextFormat("ver: %s", GOL_VERSION), width - 236, height - 30, 19, BLACK);
+    }
+
+    gridButton.RenderWithTexture(3, WHITE, { 255,212,212,255 });
+
+    if (debugEnable)
+    {
+        DrawRectangleRounded({ (float)GetMouseX() + 25, (float)GetMouseY() - 40, 210,80 }, 0.25, 10, DARKBLUE);
+        DrawRectangleRounded({ (float)GetMouseX() + 30, (float)GetMouseY() - 35, 200,70 }, 0.25, 10, SKYBLUE);
+
+
+        DrawTextEx(GetFontDefault(), "Mouse:",
+            Vector2Add(GetMousePosition(), { 35, -30 }), 20, 2, BLACK);
+        DrawTextEx(GetFontDefault(), TextFormat("[%i, %i]", GetMouseX(), GetMouseY()),
+            Vector2Add(GetMousePosition(), { 115, -30 }), 20, 2, BLACK);
+
+        Vector2 worldMouse = cam.ScreenPosToWorlPos(GetMousePosition());
+        int cellX = std::floor(worldMouse.x);
+        int cellY = std::floor(worldMouse.y);
+        DrawTextEx(GetFontDefault(), "Cell:",
+            Vector2Add(GetMousePosition(), { 35, -10 }), 20, 2, BLACK);
+        DrawTextEx(GetFontDefault(), TextFormat("[%i, %i]", cellX, cellY),
+            Vector2Add(GetMousePosition(), { 115, -10 }), 20, 2, BLACK);
+
+        int chunkX = cellX < 0 ? (((cellX - 7) / 8)) : (cellX / 8);
+        int chunkY = cellY < 0 ? (((cellY - 7) / 8)) : (cellY / 8);
+
+        DrawTextEx(GetFontDefault(), "Chunk:",
+            Vector2Add(GetMousePosition(), { 35, 10 }), 20, 2, BLACK);
+        DrawTextEx(GetFontDefault(), TextFormat("[%i, %i]", chunkX, chunkY),
+            Vector2Add(GetMousePosition(), { 115, 10 }), 20, 2, BLACK);
+    }
+
+   
+    {
+        //reload
+        //if (GetMousePosition().x > 0 && GetMousePosition().x < 100 && GetMousePosition().y > 0 && GetMousePosition().y < 100)
+        //    DrawTexturePro(img, { 0,0,16,16 }, { 0, 0, 100, 100 }, { 0,0 }, 0, );
+        //else
+        //    DrawTexturePro(img, {0,0,16,16}, { 0, 0, 100, 100 }, { 0,0 }, 0, );
+
+    }
 }
