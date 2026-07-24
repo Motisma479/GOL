@@ -1,0 +1,3 @@
+[submodule "C++_raylib/Externals/raylib"]
+	path = C++_raylib/Externals/raylib
+	url = https://github.com/raysan5/raylib.git
